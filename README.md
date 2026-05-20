@@ -50,6 +50,9 @@ Diese Datei enthält auch sensitive Daten wie Passwörter!
 | `locals`    | Hilfsvariablen                    |
 | `module`    | Wiederverwendbare Komponenten     |
 
+# Wichtige Expressions
+
+
 # Grundaufbau HCL
 ```
 block_type "<type>" "<name>" {

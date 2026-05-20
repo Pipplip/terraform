@@ -9,6 +9,12 @@ start:
 stop:
 	docker compose down -v
 
+ls-s3:
+	AWS_ACCESS_KEY_ID=test \
+	AWS_SECRET_ACCESS_KEY=test \
+	AWS_SESSION_TOKEN=test \
+	aws --endpoint-url=http://localhost:4566 s3 ls
+
 # Terraform commands for local environment with localstack
 tf-local-init:
 	docker compose run --rm terraform-local init
