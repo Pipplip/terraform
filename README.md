@@ -34,6 +34,38 @@ Diese Datei ist sehr wichtig und sollte nicht manuell geändert werden.
 Sie entsteht nachdem `terraform apply` ausgeführt wurde.   
 Diese Datei enthält auch sensitive Daten wie Passwörter!   
 
+## lokales Testen
+Dieses Repository enthält die Möglichkeit, Terraform in localstack zu verwenden.   
+Es gibt ein docker-compose um localstack und terraform in einem Container zu starten.   
+Terraform als Service, damit man es nicht lokal installieren muss.   
+
+Dafür gibt es den Unterordner `terraform_localstack/` mit der terraform config.   
+
+Docker starten:
+```bash
+make start
+```
+
+Docker beenden:
+```bash
+make stop
+```
+
+Terraform initialisieren:
+```bash
+make tf-local-init
+```
+
+Terraform Plan erstellen:
+```bash
+make tf-local-plan
+```
+
+Terraform ausführen:
+```bash
+make tf-local-apply
+```
+
 ## CLI ausführen
 
 
