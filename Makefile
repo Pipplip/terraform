@@ -11,26 +11,26 @@ stop:
 
 # Terraform commands for local environment with localstack
 tf-local-init:
-	cd terraform_localstack && \
-	docker compose run --rm terraform init
+	docker compose run --rm terraform-local init
+
+tf-local-plan:
+	docker compose run --rm terraform-local plan
 
 tf-local-apply:
-	cd terraform_localstack && \
-	docker compose run --rm terraform apply -auto-approve
+	docker compose run --rm terraform-local apply -auto-approve
 
 tf-local-destroy:
-	cd terraform_localstack && \
-	docker compose run --rm terraform destroy -auto-approve
+	docker compose run --rm terraform-local destroy -auto-approve
 
 # terraform commands for general use
 tf-init:
-	cd terraform_general && \
-	docker compose run --rm terraform init
+	docker compose run --rm terraform -chdir=terraform_general init
+
+tf-plan:
+	docker compose run --rm terraform -chdir=terraform_general plan
 
 tf-apply:
-	cd terraform_general && \
-	docker compose run --rm terraform apply -auto-approve
+	docker compose run --rm terraform -chdir=terraform_general apply -auto-approve
 
 tf-destroy:
-	cd terraform_general && \
-	docker compose run --rm terraform destroy -auto-approve
+	docker compose run --rm terraform -chdir=terraform_general destroy -auto-approve
