@@ -6,33 +6,49 @@ https://developer.hashicorp.com/terraform/tutorials/aws-get-started/aws-manage
 - Infrastruktur wird deklarativ verwaltet als Code
 - man definiert eine Infrastuktur und terraform setzt sie um
 - HCL ist die Konfigurationssprache (HCL: HashiCorp Config Language)
+- Alle .tf Dateien behandelt terraform als ein Modul (Konfiguration), unterschiedliche .tf Dateien gelten nur der menschlichen Strukturierung
 - Terraform hält den aktuellen Zustand deiner Infrastruktur in einer Datei terraform.tfstate
 (Damit weiß terraform was existiert und was geändert werden muss)
 
 Terraform init liest nur .tf Dateien im Root Verzeichnis, nicht in Subdirectories
 
-## Deploy infrastructure
+## Einzelne Schritte um eine Infrastruktur auszuführen
 1. Scope: Infrastruktur identifizieren (was wird benötigt?)
 2. Author: Schreibe die Konfiguration für die Infrastruktur
-3. Initialize: Installiere alle benötigten Terraform provider
-4. Plan: Analysiere die Vorschau
-5. Apply: Führe Plan aus
+3. Initialize (init): Installiere alle benötigten Terraform provider
+4. Plan (plan): Analysiere die Vorschau
+5. Apply (apply): Führe Plan aus
 
-## terraform.tf erstellen
+## Schritt 1: terraform.tf in einem neuen Verzeichnis erstellen
 Diese Datei konfiguriert terraform selbst.   
 Also z.B. Version oder benötigte Provider (z.B. AWS)    
 
-## main.tf erstellen
-Hier wird der Provider selbst konfiguriert.   
+## Schritt 2: main.tf erstellen
+Hier wird der Provider (z.B. AWS) selbst konfiguriert.   
+main.tf und terraform.tf sind Voraussetzung und müssen immer erstellt werden.   
 
-## terraform init
-Dieses Befehl in der Console ausführen, damit Terraform initialisiert wird, mit den Configs von oben.   
+## Schritt 3: weitere configs erstellen
+z.B. eine s3.tf für eine S3 Bucket Initialisierung    
+
+## Schritt 4: terraform init (Vorbereitung)
+Diesen Befehl in der Console ausführen, damit Terraform initialisiert wird. Es wird z.B. der Provider heruntergeladen (landen in .terraform/), Module und verbindet sich mit dem Backend um State Handling einzurichten.   
+Tipp: `terraform fmt` und `terraform validate` formatiert und prüft die Syntax der .tf Dateien
+
+## Schritt 5: terraform plan
+Dieser Befehl prüft was schon bereits existiert und welche Änderungen nötig wären.   
+z.B. `Plan: 2 to add, 1 to change, 0 to destroy.`
+
+In CI/CD Pipelines macht man meist:   
+`terraform plan -out=tfplan` speichert den Plan und diesen kann man später ausführen mit `terraform apply tfplan`
+
+## Schritt 6: terraform apply
+Stimmt der Plan und hat keine Fehler führt man die Konfiguration mit apply aus.   
 
 ## terraform.tfstate
 Enthält den aktuellen Zustand + Metadaten.   
 Diese Datei ist sehr wichtig und sollte nicht manuell geändert werden.   
 Sie entsteht nachdem `terraform apply` ausgeführt wurde.   
-Diese Datei enthält auch sensitive Daten wie Passwörter!   
+Diese Datei enthält auch sensitive Daten wie Passwörter! Und sollte NICHT commited werden!     
 
 ## lokales Testen
 Dieses Repository enthält die Möglichkeit, Terraform in localstack zu verwenden.   
