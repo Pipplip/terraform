@@ -87,16 +87,18 @@ make tf-local-apply
 
 # Wichtige Blocktypen
 
-| Block       | Zweck                             |
-| ----------- | --------------------------------- |
-| `terraform` | Terraform selbst konfigurieren    |
-| `provider`  | Verbindung zu APIs/Clouds, z.B. AWS, Azure etc.         |
-| `resource`  | Infrastruktur erstellen/verändern. Beschreibt, was man erstellen will, z.B. Datenbank, Server etc. |
-| `data`      | Bestehende Daten lesen            |
-| `variable`  | Eingaben definieren               |
-| `output`    | Werte nach apply ausgeben, z.B. IP-Adresse   |
-| `locals`    | Hilfsvariablen                    |
-| `module`    | Wiederverwendbare Komponenten     |
+| Block       | Zweck                                                                                                  |
+|-------------|--------------------------------------------------------------------------------------------------------|
+| `terraform` | Terraform selbst konfigurieren, z.B. benötigte Provider oder Terraform Version etc.                    |
+| `provider`  | Verbindung zu APIs/Clouds, z.B. AWS, Azure etc.                                                        |
+| `resource`  | Infrastruktur erstellen/verändern. Beschreibt, was man erstellen will, z.B. S3, Datenbank, Server etc. |
+| `data`      | Bestehende Daten lesen ohne etwas neues zu erstellen                                                   |
+| `variable`  | Eingaben definieren z.B. variable "region" ... -> region = var.region                                  |
+| `output`    | Werte nach apply ausgeben, z.B. IP-Adresse                                                             |
+| `locals`    | Definiert lokale Hilfsvariablen für Wiederverwendung oder Berechnung                                   |
+| `module`    | Wiederverwendbare Komponenten                                                                          |
+| `check`     | Ermöglicht Validierung während der Planung oder Ausführung                                             |
+| `import`    | importiert bestehende Infrastruktur                                                                    |
 
 # Wichtige Expressions
 
