@@ -129,3 +129,9 @@ z.B. `aws_instance.web_server`
 | `terraform apply` | Plan ausführen    |
 | `terraform destroy` | Infrastruktur löschen    |
 
+# TODO
+
+- workspaces z.B. `terraform workspace new test_euw1` was macht das?
+- tfenv
+- Definiere /infrastructure /deployment und deren Zusammenspiel (s. AWS repository)
+- IAM Rollen und Policies
