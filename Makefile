@@ -1,6 +1,6 @@
 SHELL=/bin/bash
 
-.PHONY: start stop tf-local-init tf-local-apply tf-local-destroy tf-init tf-apply tf-destroy
+.PHONY: start stop ls-s3 show-current-workspace list-workspaces create-workspace select-workspace show-applied-infra show-output tf-local-init tf-local-apply tf-local-destroy tf-init tf-apply tf-destroy
 
 # Docker Compose commands
 start:
@@ -15,7 +15,29 @@ ls-s3:
 	AWS_SESSION_TOKEN=test \
 	aws --endpoint-url=http://localhost:4566 s3 ls
 
+show-current-workspace:
+	docker compose run --rm terraform-local workspace show
+
+list-workspaces:
+	docker compose run --rm terraform-local workspace list
+
+# Aufruf "make create-workspace NAME=test_euw1"
+create-workspace:
+	docker compose run --rm terraform-local workspace new $(NAME)
+
+# Aufruf "make select-workspace NAME=test_euw1"
+select-workspace:
+	docker compose run --rm terraform-local workspace select $(NAME)
+
 # Terraform commands for local environment with localstack
+## Gebe alle Services aus, die in Terraform definiert sind und bereits angewendet wurden
+show-applied-infra:
+	docker compose run --rm terraform-local state list
+
+## gibt die Outputs aus, die in output.tf definiert sind, z.B. die S3 Bucket Namen
+show-output:
+	docker compose run --rm terraform-local output
+
 tf-local-init:
 	docker compose run --rm terraform-local init
 

@@ -17,7 +17,25 @@ Terraform init liest nur .tf Dateien im Root Verzeichnis, nicht in Subdirectorie
 2. Author: Schreibe die Konfiguration für die Infrastruktur
 3. Initialize (init): Installiere alle benötigten Terraform provider
 4. Plan (plan): Analysiere die Vorschau
-5. Apply (apply): Führe Plan aus
+5. Apply (apply): Führe Plan aus - In `main.tf` steht der Provider, also wohin die Infrastruktur deployed werden soll, z.B. AWS, Azure etc. In weiteren .tf Dateien steht dann was genau erstellt werden soll, z.B. S3 Bucket, EC2 Instanz etc.
+
+Bei einem apply wird die Infrastruktur in die Cloud deployed. Wenn man mehrere Workspaces hat, haben die Services einfach unterschiedliche Namen, damit sie sich nicht gegenseitig beeinflussen.   
+Sie befinden sich aber alle im gleichen Cloud-Space.   
+
+Bsp:
+```
+AWS Account
+│
+├── my-bucket-dev
+├── my-bucket-test
+└── my-bucket-prod
+```
+Wichtig ist dabei, dass die Namen der Services richtig definiert sind:   
+```
+resource "aws_s3_bucket" "bucket" {
+    bucket = "my-bucket-${terraform.workspace}"
+}
+```
 
 ## Schritt 1: terraform.tf in einem neuen Verzeichnis erstellen
 Diese Datei konfiguriert terraform selbst.   
@@ -50,6 +68,35 @@ Diese Datei ist sehr wichtig und sollte nicht manuell geändert werden.
 Sie entsteht nachdem `terraform apply` ausgeführt wurde.   
 Diese Datei enthält auch sensitive Daten wie Passwörter! Und sollte NICHT commited werden!     
 
+## Workspaces
+Workspaces sind eine Möglichkeit, mehrere getrennte Zustände (State Files) mit derselben Konfiguration zu verwalten.   
+Dadurch kannst du z.B. verschiedene Umgebungen (dev, test, prod) oder verschiedene Deployments (z.B. in verschiedenen Regionen) mit derselben Terraform-Konfiguration verwalten, ohne dass sie sich gegenseitig beeinflussen.
+
+Bsp.
+- default
+- test_euw1
+- prod_euw1
+- staging_euw1
+
+Jeder Workspace hat seinen eigenen Terraform State, auch wenn der Code identisch ist.   
+
+**Workspace anlegen und direkt wechseln:**      
+`terraform workspace new test_euw1`
+
+**Workspaces anzeigen:**   
+`terraform workspace list`
+
+**Workspace wechseln:**   
+`terraform workspace select test_euw1`
+
+Warum ist das nützlich?   
+Du kannst damit z.B.:
+- gleiche Infrastruktur mehrfach deployen
+- getrennte Umgebungen simulieren (dev/test/prod)
+- mit LocalStack mehrere isolierte Tests machen
+
+Die Workspaces liegen, nachdem sie erstellt wurden in einem Unterordner `terraform.tfstate.d/` und heißen dann z.B. `test_euw1/terraform.tfstate`   
+
 ## lokales Testen
 Dieses Repository enthält die Möglichkeit, Terraform in localstack zu verwenden.   
 Es gibt ein docker-compose um localstack und terraform in einem Container zu starten.   
@@ -80,6 +127,16 @@ make tf-local-plan
 Terraform ausführen:
 ```bash
 make tf-local-apply
+```
+
+Workspace erstellen:
+```bash
+make create-workspace NAME=test_euw1
+```
+
+Workspace auswählen:
+```bash
+make create-workspace NAME=test_euw1
 ```
 
 ## CLI ausführen
@@ -131,7 +188,6 @@ z.B. `aws_instance.web_server`
 
 # TODO
 
-- workspaces z.B. `terraform workspace new test_euw1` was macht das?
 - tfenv
 - Definiere /infrastructure /deployment und deren Zusammenspiel (s. AWS repository)
 - IAM Rollen und Policies
