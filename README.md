@@ -100,9 +100,20 @@ Die Workspaces liegen, nachdem sie erstellt wurden in einem Unterordner `terrafo
 ## lokales Testen
 Dieses Repository enthält die Möglichkeit, Terraform in localstack zu verwenden.   
 Es gibt ein docker-compose um localstack und terraform in einem Container zu starten.   
-Terraform als Service, damit man es nicht lokal installieren muss.   
+Terraform als Container-Service, damit man es nicht lokal installieren muss.   
+Eine kleiner Golang-Webservice ist auch enthalten, damit man die Infrastruktur auch direkt testen kann. `./app/` enthält den Code für diesen Webservice.   
+Im Docker compose wird das working directory auf das lokale Verzeichnis gemappt.
+Dafür gibt es den Unterordner `terraform_localstack/` mit der terraform config.  
 
-Dafür gibt es den Unterordner `terraform_localstack/` mit der terraform config.   
+### Alles ausführen:  
+```bash
+make start-all
+```
+Startet localstack, initialisiert terraform, erstellt den Infrastruktur-Plan und führt ihn aus.  
+Danach wird die app gebaut und gestartet. Localstack und die App befinden sich dann in einem gemeinsamen Container und können miteinander kommunizieren.   
+ECR und ECS sind aus localstack Lizenzgründen nicht verfügbar, deswegen wird die App als Docker Container gestartet und mit einem Port verbunden.   
+
+### Einzeln ausführen:
 
 Docker starten:
 ```bash
@@ -139,9 +150,6 @@ Workspace auswählen:
 make create-workspace NAME=test_euw1
 ```
 
-## CLI ausführen
-
-
 # Wichtige Blocktypen
 
 | Block       | Zweck                                                                                                  |
@@ -158,7 +166,7 @@ make create-workspace NAME=test_euw1
 | `import`    | importiert bestehende Infrastruktur                                                                    |
 
 # Wichtige Expressions
-
+TODO
 
 # Grundaufbau HCL
 ```

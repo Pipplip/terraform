@@ -5,12 +5,15 @@ services:
       - "4566:4566"
     environment:
       - DEBUG=1
+      - SERVICES=s3,ssm,secretsmanager,iam,sts
       - AWS_ACCESS_KEY_ID=test
       - AWS_SECRET_ACCESS_KEY=test
       - AWS_REGION=eu-west-1
       - AWS_DEFAULT_REGION=eu-west-1
     volumes:
       - localstack-data:/var/lib/localstack
+    networks:
+      - aws-net
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:4566/_localstack/health"]
       interval: 5s
@@ -24,6 +27,27 @@ services:
       - ./:/workspace
     tty: true
     stdin_open: true
+    networks:
+      - aws-net
+
+  app:
+    build:
+      context: ./app
+    environment:
+      AWS_ACCESS_KEY_ID: test
+      AWS_SECRET_ACCESS_KEY: test
+      AWS_REGION: eu-west-1
+      AWS_ENDPOINT_URL: http://localstack:4566
+    networks:
+      - aws-net
+    ports:
+      - "8080:8080"
+    depends_on:
+      localstack:
+        condition: service_healthy
 
 volumes:
   localstack-data:
+
+networks:
+  aws-net:

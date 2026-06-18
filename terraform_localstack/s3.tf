@@ -1,3 +1,3 @@
-resource "aws_s3_bucket" "test_bucket" {
-  bucket = "my-local-bucket"
+resource "aws_s3_bucket" "uploads" {
+  bucket = "uploads-bucket"
 }

@@ -1,13 +1,25 @@
 SHELL=/bin/bash
 
-.PHONY: start stop ls-s3 show-current-workspace list-workspaces create-workspace select-workspace show-applied-infra show-output tf-local-init tf-local-apply tf-local-destroy tf-init tf-apply tf-destroy
+.PHONY: start stop start-all build-app ls-s3 ls-s3-win show-current-workspace list-workspaces create-workspace select-workspace show-applied-infra show-output tf-local-init tf-local-apply tf-local-destroy tf-init tf-apply tf-destroy
 
-# Docker Compose commands
+# -------- Docker commands ----------- #
 start:
 	docker compose up -d
 
 stop:
 	docker compose down -v
+
+start-all:
+	docker compose up -d localstack
+	docker compose run --rm terraform-local init
+	docker compose run --rm terraform-local plan
+	docker compose run --rm terraform-local apply -auto-approve
+	docker compose up -d --build app
+
+# -------- app service commands ----------- #
+# nur lokales bauen der App - nicht notwendig, da die App automatisch im docker compose gebaut wird, wenn sie mit "start-all" gestartet wird
+build-app:
+	docker build -t aws-learning-service ./app
 
 ls-s3:
 	AWS_ACCESS_KEY_ID=test \
@@ -15,6 +27,10 @@ ls-s3:
 	AWS_SESSION_TOKEN=test \
 	aws --endpoint-url=http://localhost:4566 s3 ls
 
+ls-s3-win:
+	docker compose exec localstack awslocal s3 ls s3://uploads-bucket
+
+# -------- terraform commands ----------- #
 show-current-workspace:
 	docker compose run --rm terraform-local workspace show
 
