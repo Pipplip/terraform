@@ -1,5 +1,5 @@
 resource "aws_secretsmanager_secret" "db" {
-  name = "app/database"
+  name = "${terraform.workspace}/app/database"
 }
 
 resource "aws_secretsmanager_secret_version" "db" {

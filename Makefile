@@ -1,4 +1,6 @@
 SHELL=/bin/bash
+-include .env
+export NAME
 
 .PHONY: start stop start-all build-app ls-s3 ls-s3-win show-current-workspace list-workspaces create-workspace select-workspace show-applied-infra show-output tf-local-init tf-local-apply tf-local-destroy tf-init tf-apply tf-destroy
 
@@ -28,7 +30,7 @@ ls-s3:
 	aws --endpoint-url=http://localhost:4566 s3 ls
 
 ls-s3-win:
-	docker compose exec localstack awslocal s3 ls s3://uploads-bucket
+	docker compose exec localstack awslocal s3 ls s3://uploads-bucket-$(NAME)
 
 # -------- terraform commands ----------- #
 show-current-workspace:
@@ -40,10 +42,12 @@ list-workspaces:
 # Aufruf "make create-workspace NAME=test_euw1"
 create-workspace:
 	docker compose run --rm terraform-local workspace new $(NAME)
+	echo NAME=$(NAME) > .env
 
 # Aufruf "make select-workspace NAME=test_euw1"
 select-workspace:
 	docker compose run --rm terraform-local workspace select $(NAME)
+	echo NAME=$(NAME) > .env
 
 # Terraform commands for local environment with localstack
 ## Gebe alle Services aus, die in Terraform definiert sind und bereits angewendet wurden

@@ -4,8 +4,10 @@ import (
 	"aws-learning-service/internal/handler"
 	"context"
 	"encoding/json"
+	"fmt"
 	"log"
 	"net/http"
+	"os"
 
 	awslib "aws-learning-service/internal/aws"
 
@@ -34,10 +36,13 @@ func main() {
 		o.UsePathStyle = true
 	})
 
+	workspace := os.Getenv("TF_WORKSPACE")
+	log.Println("workspace:", workspace)
+
 	bucket, err := awslib.GetParameter(
 		ctx,
 		ssmClient,
-		"/app/s3/bucket",
+		fmt.Sprintf("/%s/app/s3/bucket", workspace),
 	)
 	if err != nil {
 		log.Fatal(err)
@@ -46,7 +51,7 @@ func main() {
 	dbHost, err := awslib.GetParameter(
 		ctx,
 		ssmClient,
-		"/app/db/host",
+		fmt.Sprintf("/%s/app/db/host", workspace),
 	)
 	if err != nil {
 		log.Fatal(err)
@@ -55,7 +60,7 @@ func main() {
 	secretString, err := awslib.GetSecret(
 		ctx,
 		secretsClient,
-		"app/database",
+		fmt.Sprintf("%s/app/database", workspace),
 	)
 	if err != nil {
 		log.Fatal(err)
