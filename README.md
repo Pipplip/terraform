@@ -231,8 +231,37 @@ z.B. `aws_instance.web_server`
 | `terraform apply` | Plan ausführen    |
 | `terraform destroy` | Infrastruktur löschen    |
 
+# Best practices
+
+Unterscheidung von Infrastruktur und Deployment:   
+Man hat zwei Verzeichnisse:
+- `./infrastructure/` – langlebige, selten ändernde Ressourcen
+- `./deployment/` - häufig ändernde, release-spezifische Ressourcen
+
+infrastructure Beispiel:  
+Hier liegen Ressourcen, die einmal erstellt werden und sich kaum ändern:  
+- VPC, Subnetze, Security Groups
+- Datenbanken (z. B. RDS)
+- IAM Roles/Policies
+- Lambda-Funktionen (Hülle, nicht der Code)
+- Load Balancer
+
+deployment Beispiel:   
+Hier liegen Ressourcen, die sich mit jedem Release ändern:
+- Container-Image-Tags / Task Definitions (z. B. ECS)
+- Lambda-Funktionscode (S3-Key des Deployments)
+- Konfigurationswerte, die versioniert werden
+
+Warum die Trennung?
+
+| Grund | Erklärung |
+|-------|-----------|
+|Sicherheit|Infrastruktur-Änderungen sind riskant. Durch Trennung kann man verhindern, dass ein normaler Deploy versehentlich eine Security Group oder eine DB löscht.|
+|Geschwindigkeit|terraform apply auf deployment ist schnell (wenige Ressourcen). infrastructure muss seltener angefasst werden.|
+|State-Isolation|Jeder Ordner hat seinen eigenen Terraform State. Fehler im Deployment-State gefährden nicht den Infrastruktur-State.|
+|Berechtigungen|CI/CD-Pipelines können für deployment andere (eingeschränktere) Rechte bekommen als für infrastructure.|
+|Blast Radius|Ein Fehler im Deployment-Code kann nicht die gesamte Netzwerk-Infrastruktur zerstören.|
+
 # TODO
 
 - tfenv
-- Definiere /infrastructure /deployment und deren Zusammenspiel (s. AWS repository)
-- IAM Rollen und Policies
