@@ -105,6 +105,27 @@ Eine kleiner Golang-Webservice ist auch enthalten, damit man die Infrastruktur a
 Im Docker compose wird das working directory auf das lokale Verzeichnis gemappt.
 Dafür gibt es den Unterordner `terraform_localstack/` mit der terraform config.  
 
+```
+┌─────────────────────────────────────────────────────────┐
+│                    docker-compose                       │
+│                                                         │
+│  ┌──────────┐    POST /upload    ┌──────────────────┐   │
+│  │  Client  │──────────────────► │   Go App :8080   │   │
+│  └──────────┘                    └────────┬─────────┘   │
+│                                          │              │
+│                          ┌───────────────┼──────────┐   │
+│                          │               │          │   │
+│                          ▼               ▼          │   │
+│                   ┌──────────┐   ┌────────────┐     │   │
+│                   │LocalStack│   │ PostgreSQL │     │   │
+│                   │  S3      │   │  :5432     │     │   │
+│                   │  SSM     │   └────────────┘     │   │
+│                   │  Secrets │                      │   │
+│                   │  IAM     │                      │   │
+│                   └──────────┘                      │   │
+└─────────────────────────────────────────────────────────┘
+```
+
 ### Alles ausführen:  
 ```bash
 make start-all
@@ -165,12 +186,28 @@ make create-workspace NAME=test_euw1
 | `check`     | Ermöglicht Validierung während der Planung oder Ausführung                                             |
 | `import`    | importiert bestehende Infrastruktur                                                                    |
 
+# Wichtige Resource-Typen für AWS
+
+| Resource                   | Warum wichtig         |
+| -------------------------- | --------------------- |
+| `aws_vpc`                  | Netzwerkbasis         |
+| `aws_subnet`               | Netzwerksegmentierung |
+| `aws_security_group`       | Firewall              |
+| `aws_instance`             | Compute               |
+| `aws_s3_bucket`            | Storage               |
+| `aws_iam_role`             | Berechtigungen        |
+| `aws_lb`                   | Lastverteilung        |
+| `aws_db_instance`          | Datenbank             |
+| `aws_route53_record`       | DNS                   |
+| `aws_cloudwatch_log_group` | Logging               |
+
+
 # Wichtige Expressions
 TODO
 
 # Grundaufbau HCL
 ```
-block_type "<type>" "<name>" {
+block_type "<type>" "<frei wählbarer name>" {
 	argument_name = expression
 	nested_block{
 		argument_name = expression

@@ -1,6 +1,7 @@
 package main
 
 import (
+	"aws-learning-service/internal/database"
 	"aws-learning-service/internal/handler"
 	"context"
 	"encoding/json"
@@ -25,12 +26,16 @@ func main() {
 
 	ctx := context.Background()
 
+	// AWS config laden, auch die IAM Rolle
 	cfg, err := awslib.NewConfig(ctx)
 	if err != nil {
 		log.Fatal(err)
 	}
 
+	// greife auf die SSM Konfigurations-Parameter zu
 	ssmClient := ssm.NewFromConfig(*cfg)
+
+	// greife auf die secrets.tf zu
 	secretsClient := secretsmanager.NewFromConfig(*cfg)
 	s3Client := s3.NewFromConfig(*cfg, func(o *s3.Options) {
 		o.UsePathStyle = true
@@ -39,6 +44,9 @@ func main() {
 	workspace := os.Getenv("TF_WORKSPACE")
 	log.Println("workspace:", workspace)
 
+	// App fragt nach SSM, AWS prüft die Policy (app-role).
+	// Also darf die App das haben.
+	// Ist in iam.tf definiert mit actions = ["ssm:GetParameter"] - also OK
 	bucket, err := awslib.GetParameter(
 		ctx,
 		ssmClient,
@@ -57,6 +65,9 @@ func main() {
 		log.Fatal(err)
 	}
 
+	// hole secret aus secret.tf und parst JSON in DBSecret
+	// Bevor secret geholt wird, wird geprüft on die app das Recht hat
+	// In iam.tf ist sie definiert actions   = ["secretsmanager:GetSecretValue"] - also OK
 	secretString, err := awslib.GetSecret(
 		ctx,
 		secretsClient,
@@ -76,6 +87,17 @@ func main() {
 		log.Fatal(err)
 	}
 
+	// DB-Verbindung aufbauen
+	connString := fmt.Sprintf(
+		"postgres://%s:%s@%s:5432/uploads",
+		secret.Username, secret.Password, dbHost,
+	)
+	db, err := database.Connect(ctx, connString)
+	if err != nil {
+		log.Fatal(err)
+	}
+	defer db.Close(ctx)
+
 	log.Println("bucket:", bucket)
 	log.Println("db host:", dbHost)
 	log.Println("db user:", secret.Username)
@@ -83,6 +105,7 @@ func main() {
 	h := &handler.UploadHandler{
 		Bucket: bucket,
 		S3:     s3Client,
+		DB:     db,
 	}
 
 	http.HandleFunc(

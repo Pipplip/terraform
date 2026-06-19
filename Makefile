@@ -14,8 +14,11 @@ stop:
 start-all:
 	docker compose up -d localstack
 	docker compose run --rm terraform-local init
+	docker compose run --rm terraform-local fmt
+	docker compose run --rm terraform-local validate
 	docker compose run --rm terraform-local plan
 	docker compose run --rm terraform-local apply -auto-approve
+	docker compose up -d postgres
 	docker compose up -d --build app
 
 # -------- app service commands ----------- #
@@ -42,12 +45,12 @@ list-workspaces:
 # Aufruf "make create-workspace NAME=test_euw1"
 create-workspace:
 	docker compose run --rm terraform-local workspace new $(NAME)
-	echo NAME=$(NAME) > .env
+	echo NAME=$(NAME)> .env
 
 # Aufruf "make select-workspace NAME=test_euw1"
 select-workspace:
 	docker compose run --rm terraform-local workspace select $(NAME)
-	echo NAME=$(NAME) > .env
+	echo NAME=$(NAME)> .env
 
 # Terraform commands for local environment with localstack
 ## Gebe alle Services aus, die in Terraform definiert sind und bereits angewendet wurden

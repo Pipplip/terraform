@@ -30,6 +30,24 @@ services:
     networks:
       - aws-net
 
+  postgres:
+    image: postgres:17-alpine
+    environment:
+      POSTGRES_USER: app
+      POSTGRES_PASSWORD: secret
+      POSTGRES_DB: uploads
+    ports:
+      - "5432:5432"
+    volumes:
+      - ./app/db/init.sql:/docker-entrypoint-initdb.d/init.sql
+    networks:
+      - aws-net
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -U app -d uploads" ]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
   app:
     build:
       context: ./app
@@ -45,6 +63,8 @@ services:
       - "8080:8080"
     depends_on:
       localstack:
+        condition: service_healthy
+      postgres:
         condition: service_healthy
 
 volumes:
